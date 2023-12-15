@@ -1,36 +1,91 @@
-console.log("Hola Mundo")
-
+//Declaro las variable a utilizar
 let intentos = 6;
-let palabra = "MOUSE";
+let diccionario = ['PERAS', 'PERROS', 'CARRO', 'LUJOS', 'LOBOS', 'LUCIO', 'BALON', 'AVION', 'VOLAR', 'JUEGO']
 
-let button = document.getElementById('guess-button');
+//La libreria Math sirve para contar cuantos elementos son los que estan 
+//dentro del arreglo y comenzar a autoseleccionar cual de estas es la palabra oculta
+let palabra = diccionario[Math.floor(Math.random() * diccionario.length)];
 
-button.addEventListener('click', intentar);
+//Aca utilizo una API para aleatorizar las palabras para el wordle (Las palabras estan en ingles)
+fetch('https://random-word-api.herokuapp.com/word?length=5&lang=en')
+ 	.then(response => response.json())
+ 	.then(response => {
+         console.log(response)
+         palabra = response[0].toUpperCase()
+     })
+ 	.catch(err => console.error(err));
 
+ //Este es un evento que aparece en el tutorial 
+window.addEventListener('load', init)
+function init(){
+    console.log('Esto se ejecuta solo cuando se carga la pagina web')
+}
+
+//La funcion intentar aparece en el tutorial sin embargo
+//le hice una serie de modificaciones para que funcione correctamente 
 function intentar(){
     const INTENTO = leerIntento();
-    console.log(INTENTO)
     if (INTENTO === palabra ) {
-        console.log("GANASTE!")
+        terminar("<h1>GANASTE</h1>");
+        //La funcion mostrarPalabraCorrecta(), esta para mostrar la palabra que escribiste y te dio la victoria
+        mostrarPalabraCorrecta();
         return
     }
+    const GRID = document.getElementById("grid");
+    const ROW = document.createElement('div');
+    ROW.className = 'row';
     for (let i in palabra){
+        const SPAN = document.createElement('span');
+        SPAN.className = 'letter';
         if (INTENTO[i]===palabra[i]){
-            console.log(INTENTO[i], "VERDE")
+            SPAN.innerHTML = INTENTO[i];
+            SPAN.style.backgroundColor = 'green'
         } else if( palabra.includes(INTENTO[i]) ) {
-            console.log(INTENTO[i], "AMARILLO")
+            SPAN.innerHTML = INTENTO[i];
+            SPAN.style.backgroundColor = 'yellow';
         } else {
-            console.log(INTENTO[i], "GRIS")
+            SPAN.innerHTML = INTENTO[i];
+            //En el tutorial cuando una letra no coincide con la palabra la pone en gris
+            //por mi parte usare rojo 
+            SPAN.style.backgroundColor = 'red';
         }
+        ROW.appendChild(SPAN)
     }
+    GRID.appendChild(ROW)
 		intentos--
     if (intentos==0){
-        console.log("PERDISTE!")
+        terminar("<h1>PERDISTE</h1>")
+        //La funcion mostrarPalabraCorrecta(), esta para mostrar la palabra que debiste haber escrito
+        mostrarPalabraCorrecta();
     }
 }
+
+//Esta funcion fue agregada para digitar en la pantalla la frase 'la palabra correcta era [palabra]'
+function mostrarPalabraCorrecta() {
+    const resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.innerHTML = `<p>La palabra correcta era: ${palabra}</p>`;
+}
+
+//Esto pertenece al tutorial
+const button = document.getElementById("guess-button");
+button.addEventListener("click", intentar);
+const input = document.getElementById("guess-input");
+const valor = input.value;
+
 function leerIntento(){
     let intento = document.getElementById("guess-input");
     intento = intento.value;
     intento = intento.toUpperCase(); 
     return intento;
 }
+
+function terminar(mensaje){
+    const INPUT = document.getElementById("guess-input");
+    INPUT.disabled = true;
+    button.disabled = true;
+    let contenedor = document.getElementById('guesses');
+    contenedor.innerHTML = mensaje;
+}
+
+//Esta linea de codigo fue implementada para el arreglo que contiene mas de un dato tipo texto
+Math.floor(Math.random() * 10) + 1;
